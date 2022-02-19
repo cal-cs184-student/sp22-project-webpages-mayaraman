@@ -1,7 +1,140 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Project 1 here
-	</body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+<body>
+    <h1>C S  1 8 4</h1>
+    <h3>Project 1 Write-Up</h3>
+    <br>
+    <br>
+
+    <p> <div class="content-block-1">
+    
+
+    <br>
+    <br>
+    
+    <div class="part1"><b>1. Drawing Single-Color Triangles</b></div>
+        <br>
+       <div class="content"> Before implementing supersampling, I used the simple method of triangle rasterization outlined in class. I looped through the triangle bounds that I calculated, then created a function called <b>inside</b> that takes in a point as well as the coordinates of the triangle and then runs the point-in-triangle test to determine if the point lies inside of the triangle. This function runs the line test formula for the point and each line, then returns true if the point is in the triangle, false otherwise. Once I have made sure that the point is inside of the triangle, I use the <b>fill_point</b> method that was already given to fill in the desired point. This is no worse than an algorithm that checks each sample within the bounding box of the triangle because it is also checking the samples within the bounding box of the triangle. The max width and height for the loop are set to the bounding box of the triangle to make sure that it is not sampling every pixel of the frame.</div></div>
+
+       <br><br><div class="imgfile"><img src="./images/task1.png" alt="Image" height="500" width="500"></div>
+
+
+<br><br><br>
+       <div class="content-block-2">  <div class="part1"><b>2. Antialiasing by Supersampling</b></div>
+       <br>
+          <div class="content">For my supersampling algorithm, I resized the buffer using the sample rate. I then modified my existing triangle rasterization algorithm to now include 2 new for loops (loops through the pixels in the triangle bounds like the last part, but once you're on a pixel, that pixel gets further broken down into tinier sub-pixels). When resolving to the framebuffer, I completed the supersampling by averaging the color values over the supersampled sub-pixels, then setting the pixel to the averaged new color value. <br> <br>Supersampling is useful because it smooths out the edges for us, which can be particularly helpful in certain cases with a lot of jagged edges / jaggies. Supersampling also helps us approximate antialising. This is because we can approximate the 1-pixel box filter by breaking the pixels up into sub-pixels and averaging. <br> <br>Looking at the image results below, we can further see the effects of supersampling on the image. As we increase our sample frequency, those jagged edges become more blurred/smoothened out. I picked this specific part of the triangle image because the corner of the pink triangle is incredibly skinny and sharp in the original image (aka very jagged), but increasing the sample rate helps "blur" out the high signal frequencies (like antialising), and we get a better image on the pixel inspector that shows the edge of the pink triangle smoothening out and starting to connect because of the blurring.</div></div>
+
+          
+
+          <br><br><div class="imgfile"><img src="./images/task2_1.png" alt="Image" height="500" width="500"></div>
+          <br><br><div class="imgfile"><img src="./images/task2_4.png" alt="Image" height="500" width="500"></div>
+          <br><br><div class="imgfile"><img src="./images/task2_9.png" alt="Image" height="500" width="500"></div>
+          <br><br><div class="imgfile"><img src="./images/task2_16.png" alt="Image" height="500" width="500"></div>
+
+          <br> <br>
+          <div class="content-block-3">  <div class="part1"><b>3. Transforms</b></div>
+          <br>
+             <div class="content">For this part, I wanted to experiment with the different transforms methods to see what I could do with cubeman. I wanted to make cubeman jump happily (like one of those end-of-the-movie type jumps when everything has worked out :D). I applied lots of rotations to his head, legs, and arms. I also just thought it would be fun to blow his head up a bit and make it slightly larger. Addtionally, I played around with cubeman's colors, giving him a color scheme split between purple and black because I thought it looked pretty interesting.</div></div>
+
+             <br><br><div class="imgfile"><img src="./images/task3_robot.png" alt="Image" height="500" width="500"></div>
+
+
+          <br> <br>
+          <div class="content-block-3">  <div class="part1"><b>4. Barycentric Coordinates</b></div>
+          <br>
+             <div class="content">Barycentric coordinates are a coordinate system for triangles consisting of alpha, beta, and gamma values that indicate a relationship between each vertex of a triangle and the alpha, beta, or gamma point. In this case, we see the relationship as the weight from the point to the vertex of the triangle. <br><br> To further demonstrate this, we have a triangle image colored in using barycentric coordinates. Since the coordinate system provides information about the weight of the point in relation to each vertex of the triangle, we can create a smooth, nice gradient coloring for the triangle when each vertex represents a different color (in this case, red, green, and blue). </div></div>
+
+             <br><br><div class="imgfile"><img src="./images/task4_tri.png" alt="Image" height="500" width="500"></div>
+
+             <br> <br>
+             <div class="content-block-3">  <div class="part1"><b>5. "Pixel Sampling" for Texture Mapping</b></div>
+             <br>
+                <div class="content">Texture sampling is the process of "re-sampling" in order to apply a texture at a certain point (u,v). It consists of figuring out which position the texture should be applied to, and essentially projecting that texture. Two possible methods of re-sampling to apply these textures are nearest sampling and bilinear sampling. <br><br> Nearest sampling is a bit simpler. It simply finds the color value of the nearest texel to the given point and uses that to apply the texture at the point. Bilinear sampling is a bit more complex. Given our point, we use linear interpolation (LERP function) on the 4 nearest surrounding color point sample locations. First, it uses linear interpolation on the 2 surrounding horizontal points (u00, u10) and (u01, u11). Then, we do a vertical linear interpolation using the result of the horizontal interpolations to compute the new color. I used these two sampling methods in helper functions in the texture.cpp file to calculate and return the correct color based on the mode of sampling (which we can then toggle between in the sample method). In the rasterizer.cpp file, I again modeled this after the triangle rasterization methods, using supersampling to loop through. But instead, I make a sample call with the texture that was passed in, which then triggers either the bilinear or nearest sampling methods to compute the correct texture color, and then set the pixel in the framebuffer to the desired color like before.<br><br> This zoomed image of a parrot is a good example of the difference between bilinear and nearest sampling. We can see that at a sampling rate of 1, both nearest sampling and bilinear sampling show some evidence of jagged edges (jaggies) around the zoomed portion of the parrot. However, you can immediately see that the bilinear sampling, even at a sampling rate of 1 pixel, has more of smoothened/blurred effect, simulating the effects of antialiasing. The bilinear sampling example becomes even more blurred when we up the rate to 16 pixels. The nearest sampling also begins to get some antialiasing effects, but not to the extent of the bilinear sampling. We can still see the jaggies for the nearest sampling example, but they have been much more smoothed out for bilinear sampling. This goes to show that bilinear sampling more accurately captures antialising effects. This is far more evident on images that are zoomed in. While trying to compare differences before the image was zoomed in, there was almost no visible difference between the two. As you zoom in more, you can see that bilinear blurs the image a lot more. This is somewhat overblurring if you zoom too far in, actually, but overall there seem to be better results with bilinear sampling, especially in areas of the image that contain a lot of jaggies. Bilinear sampling is more likely to blur out these jaggies for you, while nearest sampling seems a bit blocky and has a lot of jagged edges.</div></div>
+
+                <br><br><div class="imgfile"><img src="./images/nearest_1.png" alt="Image" height="500" width="500"></div>
+                <br><br><div class="imgfile"><img src="./images/bilinear_1.png" alt="Image" height="500" width="500"></div>
+                <br><br><div class="imgfile"><img src="./images/nearest_16.png" alt="Image" height="500" width="500"></div>
+                <br><br><div class="imgfile"><img src="./images/bilinear_16.png" alt="Image" height="500" width="500"></div>
+
+                <br> <br>
+                <div class="content-block-3">  <div class="part1"><b>6. "Level Sampling" with Mipmaps for Texture Mapping</b></div>
+                <br>
+                   <div class="content">Level sampling is a modification to our previous texture sampling algorithm. This time, we are essentially taking the texture image and filtering out high frequencies, then resampling at a lower texture "level." We recursively go through the levels of the mipmap to get this lower resolution texture file. In other words, we go down the levels of resolution (lower resolution) to sample. The main part of the implementation was writing a new get_level function, where I computed the level by taking the norm of the difference vectors (du/dx, dv/dx) and (du/dy, dv/dy), then choosing the max of those two to take the log of to compute the D value as the level. Instead of passing in level 0 to our bilinear and nearest sampling methods, I now pass in the computed resolution level. <br><br> From the images of Mario shown below, it appears that sampling with L_ZERO gives the cleanest, best resolution result. L_ZERO with bilinear sampling gives the smoothest result, again giving the effects of anti-aliasing to smooth out the jaggies. We can see that the zoomed in portion of Mario's eye appears smoother using this combination. When you switch to nearest sampling, the jagged edges definitely appear more prominent than they do with L_ZERO, even more so when you switch away from bilinear sampling. L_ZERO would probably be fastest in terms of space since you are not diving down with the levels, you are simply using the zeroth level. L_NEAREST also doesn't need to do as much recursing to get the level, so it would be slightly less efficient than zero, but still efficient. L_LINEAR is probably where it gets most inefficient. However, the efficiency is a tradeoff because the antialiasing power of bilinear sampling helps reduce jaggies and smooth out edges.</div></div>
+                   <br><br><div class="imgfile"><img src="./images/zero_linear.png" alt="Image" height="500" width="500"></div>
+                   <br><br><div class="imgfile"><img src="./images/zero_nearest.png" alt="Image" height="500" width="500"></div>
+                   <br><br><div class="imgfile"><img src="./images/nearest_linear.png" alt="Image" height="500" width="500"></div>
+                   <br><br><div class="imgfile"><img src="./images/nearest_nearest.png" alt="Image" height="500" width="500"></div>
+
+
+    </p>
+
+    <style>
+        body {
+            background-color: #22223b;
+            color: white;
+        }
+        h1 {
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            font-size: 50px;
+        }
+
+        h3 {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            text-align: center;
+            font-size: 30px;
+
+        }
+
+        .imgfile {
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        
+        .part1 {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 25px;
+            text-align: center;
+        }
+
+        .part2 {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 25px;
+            text-align: center;
+        }
+        .content {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            inline-size: 1000px; 
+            font-size: 20px;
+            margin: 0 auto;
+
+        }
+
+
+        .content-block-1 {
+
+            border-radius: 16px;
+            width: 1200px;
+            height: 300px;
+            margin: 0 auto;
+        }
+
+        .content-block-2 {
+
+            border-radius: 16px;
+            width: 1200px;
+            height: 430px;
+            margin: 0 auto;
+        }
+    </style>
+    
+</body>
 </html>
